@@ -63,7 +63,7 @@ cmake -B build \
 
 # Build plugin
 echo "Building plugin..."
-cmake --build build --target jp8000-move-plugin -j$(nproc) 2>&1
+cmake --build build --target jp8000-move-plugin jp8000-dsp -j$(nproc) 2>&1
 
 # Package
 echo "Packaging..."
@@ -74,6 +74,8 @@ cat src/module.json > dist/jp8000/module.json
 cat src/help.json > dist/jp8000/help.json
 cat build/dsp.so > dist/jp8000/dsp.so
 chmod +x dist/jp8000/dsp.so
+cat build/jp8000-dsp > dist/jp8000/jp8000-dsp
+chmod +x dist/jp8000/jp8000-dsp
 
 # The Remote UI: web_ui.html beside module.json is what Schwung Manager looks
 # for, and assets/ is served under it (params.js was regenerated on the host

@@ -29,11 +29,12 @@ DEST=/data/UserData/schwung/modules/sound_generators/jp8000
 echo "Copying module to Move..."
 ssh ableton@move.local "mkdir -p $DEST/roms $DEST/banks"
 scp dist/jp8000/dsp.so ableton@move.local:$DEST/dsp.so.new
+scp dist/jp8000/jp8000-dsp ableton@move.local:$DEST/jp8000-dsp.new
 scp dist/jp8000/module.json dist/jp8000/help.json dist/jp8000/web_ui.html ableton@move.local:$DEST/
 # The Remote UI's assets. The manager serves them straight from this folder;
 # a stale params.js next to a new dsp.so would decode the wrong bytes.
 scp -r dist/jp8000/assets ableton@move.local:$DEST/
-ssh ableton@move.local "mv -f $DEST/dsp.so.new $DEST/dsp.so"
+ssh ableton@move.local "chmod +x $DEST/jp8000-dsp.new && mv -f $DEST/jp8000-dsp.new $DEST/jp8000-dsp && mv -f $DEST/dsp.so.new $DEST/dsp.so"
 
 # Set permissions
 echo "Setting permissions..."
