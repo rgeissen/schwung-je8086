@@ -84,6 +84,15 @@ rm -rf dist/jp8000/assets
 cp src/remote/web_ui.html dist/jp8000/web_ui.html
 cp -R src/remote/assets dist/jp8000/assets
 
+# Licence texts. dsp.so is a GPL-3.0 binary built on gearmulator, and it links
+# MIT/BSD/Zlib code whose terms require the notice to travel with the binary.
+# Deliberately unconditional: a missing file must fail the build, not ship a
+# tarball without its licence.
+rm -rf dist/jp8000/licenses
+mkdir -p dist/jp8000/licenses
+cp LICENSE dist/jp8000/LICENSE
+cp licenses/*.txt dist/jp8000/licenses/
+
 # Asset directory placeholders (ROMs required, extra banks optional)
 mkdir -p dist/jp8000/roms dist/jp8000/banks
 

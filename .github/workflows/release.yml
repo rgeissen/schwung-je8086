@@ -43,6 +43,9 @@ jobs:
           # The tarball must contain a top-level jp8000/ or the Module Store
           # extracts into the wrong place.
           tar tzf dist/jp8000-module.tar.gz | head -1 | grep -q '^jp8000/'
+          # The licence travels with the GPL binary.
+          tar tzf dist/jp8000-module.tar.gz | grep -q '^jp8000/LICENSE$'
+          tar tzf dist/jp8000-module.tar.gz | grep -q '^jp8000/licenses/NOTICE.txt$'
           # ROMs are the user's to supply and must never ship.
           ! tar tzf dist/jp8000-module.tar.gz | grep -qE 'roms/.+\.(mid|bin)$'
 
