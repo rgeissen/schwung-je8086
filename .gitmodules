@@ -1,3 +1,4 @@
 [submodule "libs/gearmulator"]
 	path = libs/gearmulator
-	url = https://github.com/charlesvestal/gearmulator.git
+	url = https://github.com/rgeissen/gearmulator.git
+	branch = fix/x64-iram-mirror
