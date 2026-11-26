@@ -573,6 +573,29 @@ and that every parameter has exactly one cell. `python3
 src/tools/remote_preview.py` bundles the page with a mock manager into one file
 for looking at it without a device; its presets are examples, not factory data.
 
+## Live modulation (Pung's `live_mod`)
+
+`get_param("live_mod")` answers where the newest sounding voice of the edited part has its cutoff
+now, in the knob's units (`{"cutoff":72.0}`), with the filter envelope, both LFOs, key follow,
+velocity and the ribbon in it; `{}` while that part is silent. `live_mod_voices` is its diagnosis
+(each voice's amp level and cutoff, the newest of each part). The facts behind it, measured on the
+v1.5 firmware with `src/tools/je_modscan.cpp` (target `je_modscan`, never shipped; give each run a
+fresh copy of `roms/` with the battery RAM), are in `src/dsp/jp8000_livemod.h`:
+
+- The H8S writes the ASICs' coefficients about 100 times a second (`if_mode` 0x55: two 10-bit
+  fields into two program words). jeLib's write tap (`g_je_uc_write_capture`) sees every write in
+  the DSP process; `jp_lm_capture` keeps each voice's cutoff word and amp level in the shared
+  memory (`jp8000_shm_t::lm`). Measured cost on the Push: none (0 underruns, 0 late blocks).
+- Eight voices, each a cutoff word (ASIC 2/3) and an amp word (ASIC 3, its low field the amp
+  envelope level, 256 silent). The cutoff word maps the knob monotonically, the same for every
+  filter type, slope and resonance, saturated from knob 114 (`JP_LM_CUT_TABLE`).
+- Which voice is new: after a note-on, the one whose amp level rose most in 80 ms (a silent one
+  first). Single mode gives the upper part all eight voices in order; Dual and Split divide them by
+  Voice Assign, MIDI channel 1 the upper part, channel 2 the lower.
+- Checked offline (render-check with the shipping plugin): a filter envelope from knob 30 peaks,
+  sustains and falls back to exactly 30; LFO 1 swings around the knob; key follow reads per note;
+  a released newest note gives way to the latest still sounding; `{}` after the release.
+
 ## Verifying a change is behaviour-preserving
 
 `tools/ab/bitexact.sh <ref_build> <new_build> <rom_dir> tests/scripts` renders

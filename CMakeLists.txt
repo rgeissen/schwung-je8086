@@ -166,6 +166,11 @@ if(NOT APPLE)
     target_link_options(spike_protocol PRIVATE -static-libstdc++ -static-libgcc)
 endif()
 
+# ---- je_modscan: where the modulated controls are (Pung's live_mod research; never shipped) ----
+add_executable(je_modscan src/tools/je_modscan.cpp)
+target_include_directories(je_modscan PRIVATE ${GEARMULATOR_SOURCE})
+target_link_libraries(je_modscan PRIVATE jeLib synthLib baseLib)
+
 # ---- jp8000_render: scripted MIDI → WAV for A/B testing ----
 add_executable(jp8000_render src/tools/jp8000_render.cpp)
 target_include_directories(jp8000_render PRIVATE ${GEARMULATOR_SOURCE})
