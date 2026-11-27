@@ -24,6 +24,7 @@
  * The DSP process watches the writes (jp_lm_capture, on the H8S thread),
  * the plugin turns them into knob units (jp_lm_cutoff). */
 #pragma once
+#include <stddef.h>
 #include <stdint.h>
 
 #define JP_LM_VOICES 8
@@ -77,6 +78,22 @@ struct jp_livemod_t {
     volatile int32_t  part[JP_LM_VOICES];    /* the part it started for: 0 upper, 1 lower */
     volatile uint32_t ok;                 /* 1 once the words are the measured kind */
 };
+
+/* The firmware all of this was measured on: the JP-8000's v1.5, as the
+ * emulator holds it once the dump is put together (the CRC-32 of the whole
+ * image). The emulator also boots other firmware (another version, a
+ * JP-8080's), whose program writes other words to other places: there the
+ * module shows no live cutoff, where it would show a wrong one. */
+#define JP_LM_ROM_CRC 0xa30ec332u /* 524288 bytes; `je_modscan <roms> rom` says it */
+
+static inline uint32_t jp_lm_crc32(const uint8_t *d, size_t n) {
+    uint32_t c = 0xffffffffu;
+    for (size_t i = 0; i < n; i++) {
+        c ^= d[i];
+        for (int k = 0; k < 8; k++) c = (c >> 1) ^ (0xedb88320u & (0u - (c & 1u)));
+    }
+    return ~c;
+}
 
 /* the word's order: its low field first, then its high field */
 static inline uint32_t jp_lm_order(uint32_t w) { return ((w & 0x3ffu) << 10) | (w >> 10); }

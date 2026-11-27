@@ -35,6 +35,7 @@
 #include "jeLib/je8086.h"
 #include "jeLib/je8086devices.h"
 #include "jeLib/romloader.h"
+#include "../dsp/jp8000_livemod.h"
 #include "jeLib/sysexRemoteControl.h"
 #include "synthLib/midiTypes.h"
 #include "synthLib/romLoader.h"
@@ -135,6 +136,11 @@ int main(int argc, char **argv) {
     synthLib::RomLoader::addSearchPath(dir);
     auto rom = RomLoader::findROM();
     if (!rom.isValid()) { fprintf(stderr, "no rom in %s\n", dir.c_str()); return 1; }
+    /* `rom`: which firmware this is (the identity live_mod is tied to: JP_LM_ROM_CRC) */
+    if (mode == "rom") {
+        printf("rom: %zu bytes, crc32 %08x\n", rom.getData().size(), jp_lm_crc32(rom.getData().data(), rom.getData().size()));
+        return 0;
+    }
 
     synthLib::DeviceCreateParams params;
     params.romData = rom.getData();

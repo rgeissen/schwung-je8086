@@ -582,6 +582,11 @@ velocity and the ribbon in it; `{}` while that part is silent. `live_mod_voices`
 v1.5 firmware with `src/tools/je_modscan.cpp` (target `je_modscan`, never shipped; give each run a
 fresh copy of `roms/` with the battery RAM), are in `src/dsp/jp8000_livemod.h`:
 
+- **Only on the firmware it was measured on.** The emulator also boots other firmware (another
+  version's dump, a JP-8080's), whose program writes other words to other places. The child takes
+  the CRC-32 of the ROM image once it is put together and captures only where it is
+  `JP_LM_ROM_CRC` (the v1.5 image; `je_modscan <roms> rom` prints a firmware's); any other gets
+  `{}` and one log line, never a cutoff in the wrong place.
 - The H8S writes the ASICs' coefficients about 100 times a second (`if_mode` 0x55: two 10-bit
   fields into two program words). jeLib's write tap (`g_je_uc_write_capture`) sees every write in
   the DSP process; `jp_lm_capture` keeps each voice's cutoff word and amp level in the shared

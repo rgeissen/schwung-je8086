@@ -881,12 +881,16 @@ static int child_lm_upper_mask(jp8000_shm_t *shm) {
     return JP_LM_UPPER[v >= 0 && v < 5 ? v : 4];
 }
 
+/* the firmware is the one the addresses were measured on (set once the ROM is
+ * in, before the emulator runs; jp8000_livemod.h, JP_LM_ROM_CRC) */
+static bool g_lm_measured = false;
+
 static void jp_lm_capture(int asic, uint32_t address, uint8_t value) {
     static uint8_t mode[4], word[4][4];
     static int64_t open_at = -1, open_note = -1;
     static uint32_t start[JP_LM_VOICES], last[JP_LM_VOICES], rise[JP_LM_VOICES];
     jp8000_shm_t *shm = g_child_shm;
-    if (!shm || asic < 0 || asic > 3) return;
+    if (!g_lm_measured || !shm || asic < 0 || asic > 3) return; /* another firmware: no live cutoff, never a wrong one */
     address &= 0x3fff;
     word[asic][address & 3] = value;
     if (address == 0x2003) { mode[asic] = value; return; }
@@ -1503,6 +1507,13 @@ static void child_main(jp8000_shm_t *shm) {
         return;
     }
     vlog("[child] ROM: %s", rom.getName().c_str());
+    {
+        const uint32_t crc = jp_lm_crc32(rom.getData().data(), rom.getData().size());
+        g_lm_measured = crc == JP_LM_ROM_CRC;
+        if (!g_lm_measured)
+            vlog("[child] live cutoff: not the firmware it was measured on (%zu bytes, crc32 %08x): none",
+                 rom.getData().size(), crc);
+    }
 
     /* Bank list before anything else: the parent answers chain_params from
      * it, and reads it only after child_ready. */
